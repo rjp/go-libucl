@@ -24,7 +24,7 @@ static inline bool _go_macro_handler(const unsigned char *data, size_t len, void
 // Returns the ucl_macro_handler that we have, since we can't get this
 // type from cgo.
 static inline ucl_macro_handler _go_macro_handler_func() {
-    return &_go_macro_handler;
+	return (ucl_macro_handler)&_go_macro_handler;
 }
 
 // This just converts an int to a void*, because Go doesn't let us do that

@@ -24,6 +24,12 @@ func decode(name string, o *Object, result reflect.Value) error {
 		return decodeIntoInterface(name, o, result)
 	case reflect.Int:
 		return decodeIntoInt(name, o, result)
+	case reflect.Int64:
+		return decodeIntoInt(name, o, result)
+	case reflect.Uint:
+		return decodeIntoUint(name, o, result)
+	case reflect.Uint64:
+		return decodeIntoUint(name, o, result)
 	case reflect.Map:
 		return decodeIntoMap(name, o, result)
 	case reflect.Ptr:
@@ -68,6 +74,22 @@ func decodeIntoInt(name string, o *Object, result reflect.Value) error {
 		}
 	default:
 		result.SetInt(o.ToInt())
+	}
+
+	return nil
+}
+
+func decodeIntoUint(name string, o *Object, result reflect.Value) error {
+	switch o.Type() {
+	case ObjectTypeString:
+		i, err := strconv.ParseUint(o.ToString(), 0, result.Type().Bits())
+		if err == nil {
+			result.SetUint(i)
+		} else {
+			return fmt.Errorf("cannot parse '%s' as int: %s", name, err)
+		}
+	default:
+		result.SetUint(o.ToUint())
 	}
 
 	return nil

@@ -7,16 +7,26 @@ import (
 
 func TestObjectDecode_basic(t *testing.T) {
 	type Basic struct {
-		Bool    bool
-		BoolStr string
-		Str     string
-		Num     int
-		NumStr  int
+		Bool      bool
+		BoolStr   string
+		Str       string
+		Num       int
+		NumStr    int
+		Card      uint
+		CardStr   uint
+		Num64     int64
+		Num64Str  int64
+		Card64    uint64
+		Card64Str uint64
 	}
 
 	obj := testParseString(t, `
-	bool = true; str = bar; num = 7; numstr = "42";
-	boolstr = true;
+	bool = true; boolstr = true;
+        str = bar;
+        num = 7; numstr = "42";
+        card = 29; cardstr = "16384";
+        num64 = 77; num64str = "4242";
+        card64 = 2929; card64str = "524288";
 	`)
 	defer obj.Close()
 
@@ -26,11 +36,17 @@ func TestObjectDecode_basic(t *testing.T) {
 	}
 
 	expected := Basic{
-		Bool:    true,
-		BoolStr: "true",
-		Str:     "bar",
-		Num:     7,
-		NumStr:  42,
+		Bool:      true,
+		BoolStr:   "true",
+		Str:       "bar",
+		Num:       7,
+		NumStr:    42,
+		Card:      29,
+		CardStr:   16384,
+		Num64:     77,
+		Num64Str:  4242,
+		Card64:    2929,
+		Card64Str: 524288,
 	}
 
 	if !reflect.DeepEqual(result, expected) {

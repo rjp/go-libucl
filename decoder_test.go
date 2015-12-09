@@ -178,7 +178,7 @@ func TestObjectDecode_mapObject(t *testing.T) {
 	expected := map[string]interface{}{
 		"foo": "bar",
 		"bar": []map[string]interface{}{
-			map[string]interface{}{
+			{
 				"baz": "what",
 			},
 		},
@@ -205,10 +205,10 @@ func TestObjectDecode_mapObjectMultiple(t *testing.T) {
 	expected := map[string]interface{}{
 		"foo": "bar",
 		"bar": []map[string]interface{}{
-			map[string]interface{}{
+			{
 				"baz": "what",
 			},
-			map[string]interface{}{
+			{
 				"port": 3000,
 			},
 		},
@@ -242,7 +242,7 @@ func TestObjectDecode_mapReuseVal(t *testing.T) {
 
 	expected := Result{
 		Struct: map[string]Struct{
-			"foo": Struct{
+			"foo": {
 				Foo: "bar",
 				Bar: "baz",
 			},
@@ -421,7 +421,7 @@ func TestObjectDecode_mapStructNamed(t *testing.T) {
 	}
 
 	expected := map[string]Nested{
-		"foo": Nested{
+		"foo": {
 			Name: "foo",
 			Foo:  "bar",
 		},
@@ -457,7 +457,7 @@ func TestObjectDecode_mapStructObject(t *testing.T) {
 	defer result.Value["foo"].Object.Close()
 
 	expected := map[string]Nested{
-		"foo": Nested{
+		"foo": {
 			Foo:    "bar",
 			Object: fooObj,
 		},

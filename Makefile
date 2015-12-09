@@ -15,8 +15,8 @@ libucl: vendor/libucl/$(LIBUCL_NAME)
 
 vendor/libucl/libucl.a: vendor/libucl
 	cd vendor/libucl && \
-		cmake cmake/ && \
-		make
+	  cmake . && \
+	  make
 
 vendor/libucl/libucl.dll: vendor/libucl
 	cd vendor/libucl && \

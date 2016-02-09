@@ -10,19 +10,14 @@ Windows.
 is not guaranteed. Additionally, it is not feature complete yet, though
 it is certainly usable for real purposes (we do!).
 
+## Prerequisites
+* libucl (This is a wrapper for this library)
+* pkg-config (cgo uses this for locate where libucl is)
+
 ## Installation
 
-Because we vendor the source of libucl, you can go ahead and get it directly.
-We'll keep up to date with libucl. The package name is `libucl`.
-
 ```
-$ go get github.com/mitchellh/go-libucl
+$ go get github.com/draringi/go-libucl
 ```
 
-Documentation is available on GoDoc: http://godoc.org/github.com/mitchellh/go-libucl
-
-### Compiling Libucl
-
-Libucl should compile easily and cleanly on POSIX systems.
-
-On Windows, msys should be used. msys-regex needs to be compiled.
+Documentation is available on GoDoc: http://godoc.org/github.com/draringi/go-libucl

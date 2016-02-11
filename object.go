@@ -43,7 +43,7 @@ const (
 	EmitYAML
 )
 
-// Free the memory associated with the object. This must be called when
+// Close frees the memory associated with the object. This must be called when
 // you're done using it.
 func (o *Object) Close() error {
 	C.ucl_object_unref(o.object)
@@ -69,6 +69,7 @@ func (o *Object) Delete(key string) {
 	C.ucl_object_delete_key(o.object, ckey)
 }
 
+// Get returns the element with matching key.
 func (o *Object) Get(key string) *Object {
 	ckey := C.CString(key)
 	defer C.free(unsafe.Pointer(ckey))
@@ -83,7 +84,7 @@ func (o *Object) Get(key string) *Object {
 	return result
 }
 
-// Iterate over the objects in this object.
+// Iterate returns an iterator that iterates over the objects in this object.
 //
 // The iterator must be closed when it is finished.
 //
@@ -99,7 +100,7 @@ func (o *Object) Iterate(expand bool) *ObjectIter {
 	}
 }
 
-// Returns the key of this value/object as a string, or the empty
+// Key returns the key of this value/object as a string, or the empty
 // string if the object doesn't have a key.
 func (o *Object) Key() string {
 	return C.GoString(C.ucl_object_key(o.object))
@@ -118,10 +119,10 @@ func (o *Object) Len() uint {
 		iter := o.Iterate(false)
 		defer iter.Close()
 
-		var count uint = 0
+		var count uint
 		for obj := iter.Next(); obj != nil; obj = iter.Next() {
 			obj.Close()
-			count += 1
+			count++
 		}
 
 		return count
@@ -130,14 +131,14 @@ func (o *Object) Len() uint {
 	return uint(o.object.len)
 }
 
-// Increments the ref count associated with this. You have to call
+// Ref increments the ref count associated with this. You have to call
 // close an additional time to free the memory.
 func (o *Object) Ref() error {
 	C.ucl_object_ref(o.object)
 	return nil
 }
 
-// Returns the type that this object represents.
+// Type returns the type that this object represents.
 func (o *Object) Type() ObjectType {
 	return ObjectType(C.ucl_object_type(o.object))
 }
@@ -146,30 +147,37 @@ func (o *Object) Type() ObjectType {
 // Conversion Functions
 //------------------------------------------------------------------------
 
+// ToBool converts a UCL Object to a boolean value
 func (o *Object) ToBool() bool {
 	return bool(C.ucl_object_toboolean(o.object))
 }
 
+// ToInt converts a UCL Object to a signed integer value
 func (o *Object) ToInt() int64 {
 	return int64(C.ucl_object_toint(o.object))
 }
 
+// ToUint converts a UCL Object to an unsigned integer value
 func (o *Object) ToUint() uint64 {
 	return uint64(C.ucl_object_toint(o.object))
 }
 
+// ToFloat converts a UCL Object to an floating point value
 func (o *Object) ToFloat() float64 {
 	return float64(C.ucl_object_todouble(o.object))
 }
 
+// ToString converts a UCL Object to a string
 func (o *Object) ToString() string {
 	return C.GoString(C.ucl_object_tostring(o.object))
 }
 
+// Close frees the object iterator
 func (o *ObjectIter) Close() {
 	C.ucl_object_unref(o.object)
 }
 
+// Next returns the next iterative UCL Object
 func (o *ObjectIter) Next() *Object {
 	obj := C.ucl_iterate_object(o.object, &o.iter, C._Bool(o.expand))
 	if obj == nil {

@@ -13,16 +13,15 @@ import "C"
 type MacroFunc func(string)
 
 // ParserFlag are flags that can be used to initialize a parser.
-//
-// ParserKeyLowercase will lowercase all keys.
-//
-// ParserKeyZeroCopy will attempt to do a zero-copy parse if possible.
 type ParserFlag int
 
 const (
+	// ParserKeyLowercase will lowercase all keys.
 	ParserKeyLowercase ParserFlag = C.UCL_PARSER_KEY_LOWERCASE
-	ParserZeroCopy                = C.UCL_PARSER_ZEROCOPY
-	ParserNoTime                  = C.UCL_PARSER_NO_TIME
+	// ParserZeroCopy will attempt to do a zero-copy parse if possible.
+	ParserZeroCopy = C.UCL_PARSER_ZEROCOPY
+	// ParserNoTime will treat time values as strings.
+	ParserNoTime = C.UCL_PARSER_NO_TIME
 )
 
 // Keeps track of all the macros internally
@@ -80,8 +79,8 @@ func (p *Parser) AddFile(path string) error {
 	return nil
 }
 
-// Closes the parser. Once it is closed it can no longer be used. You
-// should always close the parser once you're done with it to clean up
+// Close frees the parser. Once it is freed it can no longer be used. You
+// should always free the parser once you're done with it to clean up
 // any unused memory.
 func (p *Parser) Close() {
 	C.ucl_parser_free(p.parser)
@@ -95,7 +94,7 @@ func (p *Parser) Close() {
 	}
 }
 
-// Retrieves the root-level object for a configuration.
+// Object retrieves the root-level object for a configuration.
 func (p *Parser) Object() *Object {
 	obj := C.ucl_parser_get_object(p.parser)
 	if obj == nil {

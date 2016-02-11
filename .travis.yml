@@ -1,6 +1,8 @@
+sudo: required
 language: go
 
 go:
-  - 1.2.1
+  - tip
 
-script: make test
+before_install:
+  - ./.travis-ucl.sh

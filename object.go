@@ -21,25 +21,40 @@ type ObjectIter struct {
 type ObjectType int
 
 const (
+	// ObjectTypeObject signifies a UCL Object (key/value pair)
 	ObjectTypeObject ObjectType = iota
+	// ObjectTypeArray signifies a UCL array
 	ObjectTypeArray
+	// ObjectTypeInt signifies an integer number
 	ObjectTypeInt
+	// ObjectTypeFloat signifies a floating-point nmber
 	ObjectTypeFloat
+	// ObjectTypeString signifies a string
 	ObjectTypeString
+	// ObjectTypeBoolean signifies a boolean value (true/false)
 	ObjectTypeBoolean
+	// ObjectTypeTime signifies time in seconds stored as a floating-point number
 	ObjectTypeTime
+	// ObjectTypeUserData signifies an opaque user-provided pointer, typically
+	// used in macros
 	ObjectTypeUserData
+	// ObjectTypeNull signifies a null/non-existant value
 	ObjectTypeNull
 )
 
 // Emitter is a type of built-in emitter that can be used to convert
-// an object to another config format.
+// an object to another config format. All Emitters except EmitConfig
+// are considered lossy, and information such as implicit arrays can be lost.
 type Emitter int
 
 const (
+	// EmitJSON is the canonic json notation (with spaces indented structure)
 	EmitJSON Emitter = iota
+	// EmitJSONCompact is compact json notation (without spaces or newlines)
 	EmitJSONCompact
+	// EmitConfig is UCL (nginx-like)
 	EmitConfig
+	// EmitYAML is yaml inlined notation
 	EmitYAML
 )
 

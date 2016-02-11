@@ -1,4 +1,5 @@
 # Libucl Library for Go
+[![Build Status](https://travis-ci.org/draringi/go-libucl.svg?branch=master)](https://travis-ci.org/draringi/go-libucl)
 
 This version of go-libucl is forked from the [mitchellh version](https://github.com/mitchellh/go-libucl),
 with the goal of having a version with a focus on using the OS's copy of libucl, in a portable manner.

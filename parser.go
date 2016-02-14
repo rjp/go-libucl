@@ -150,3 +150,42 @@ func go_macro_call(id C.int, data *C.char, n C.int) C.bool {
 	f(C.GoStringN(data, n))
 	return true
 }
+
+// SetFileVariables sets the standard file variables ($FILENAME and $CURDIR) based
+// on the provided filepath. If the argument expand is true, the path will be expanded
+// out to an absolute path
+//
+// For example, if the current directory is /etc/nginx, and you give a path of
+// ../file.conf, with exand = false, $FILENAME = ../file.conf and $CURDIR = ..,
+// while with expand = true, $FILENAME = /etc/file.conf and $CURDIR = /etc
+func (p *Parser) SetFileVariables(filepath string, expand bool) error {
+	cpath := C.CString(filepath)
+	defer C.free(unsafe.Pointer(cpath))
+	ok := C.ucl_parser_set_filevars(p.parser, cpath, C.bool(expand))
+	if !ok {
+		return errors.New("Unable to set file variables")
+	}
+	return nil
+}
+
+// RegisterVariable adds a new variable to the parser, which can be accessed in
+// the configuration file as $variable_name
+func (p *Parser) RegisterVariable(variable, value string) {
+	cVariable := C.CString(variable)
+	defer C.free(unsafe.Pointer(cVariable))
+	cValue := C.CString(value)
+	defer C.free(unsafe.Pointer(cValue))
+	C.ucl_parser_register_variable(p.parser, cVariable, cValue)
+}
+
+// AddFileAndSetVariables is a combination of AddFile and SetFileVariables.
+// It is meant to be a simple way to do both actions in a single function call.
+func (p *Parser) AddFileAndSetVariables(path string, expand bool) error {
+	err := p.AddFile(path)
+	if err != nil {
+		return err
+	}
+
+	err = p.SetFileVariables(path, expand)
+	return err
+}

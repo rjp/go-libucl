@@ -2,8 +2,15 @@ package libucl
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 )
+
+type foobarSorter []string
+
+func (s foobarSorter) Len() int           { return len(s) }
+func (s foobarSorter) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s foobarSorter) Less(i, j int) bool { return s[i] > s[j] }
 
 func TestObjectDecode_basic(t *testing.T) {
 	type Basic struct {
@@ -392,7 +399,7 @@ func TestObjectDecode_structKeys(t *testing.T) {
 	if err := obj.Decode(&result); err != nil {
 		t.Fatalf("err: %s", err)
 	}
-
+	sort.Sort(foobarSorter(result.Keys))
 	expected := Struct{
 		Foo:  []string{"foo", "bar", "12"},
 		Bar:  "baz",

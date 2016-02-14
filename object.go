@@ -235,14 +235,18 @@ const (
 
 // NewObject creates a new UCL Object from a string, JSON escaping it in the process
 func NewObject(data string) *Object {
-	obj := C.ucl_object_fromlstring(C.CString(data), C.size_t(len(data)))
+	cData := C.CString(data)
+	defer C.free(unsafe.Pointer(cData))
+	obj := C.ucl_object_fromlstring(cData, C.size_t(len(data)))
 	return &Object{object: obj}
 }
 
 // NewFormattedObject creates a new UCL Object from a string, according to the instructions
 // given in the flags
 func NewFormattedObject(data string, flags StringFlag) *Object {
-	obj := C.ucl_object_fromstring_common(C.CString(data), C.size_t(len(data)), uint32(flags))
+	cData := C.CString(data)
+	defer C.free(unsafe.Pointer(cData))
+	obj := C.ucl_object_fromstring_common(cData, C.size_t(len(data)), uint32(flags))
 	return &Object{object: obj}
 }
 

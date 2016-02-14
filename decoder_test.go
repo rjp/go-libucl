@@ -399,7 +399,7 @@ func TestObjectDecode_structKeys(t *testing.T) {
 		Keys: []string{"Foo", "Bar"},
 	}
 	if !reflect.DeepEqual(expected, result) {
-		t.Fatalf("bad: %#v", result)
+		t.Fatalf("bad: %#v, expected: %#v", result, expected)
 	}
 }
 

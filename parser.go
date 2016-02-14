@@ -19,14 +19,16 @@ const (
 	// ParserKeyLowercase will lowercase all keys.
 	ParserKeyLowercase ParserFlag = C.UCL_PARSER_KEY_LOWERCASE
 	// ParserZeroCopy will attempt to do a zero-copy parse if possible.
-	ParserZeroCopy = C.UCL_PARSER_ZEROCOPY
+	ParserZeroCopy ParserFlag = C.UCL_PARSER_ZEROCOPY
 	// ParserNoTime will treat time values as strings.
-	ParserNoTime = C.UCL_PARSER_NO_TIME
+	ParserNoTime ParserFlag = C.UCL_PARSER_NO_TIME
+	// ParserNoImplicitArrays forces the creation explicit arrays instead of implicit ones
+	ParserNoImplicitArrays ParserFlag = C.UCL_PARSER_NO_IMPLICIT_ARRAYS
 )
 
 // Keeps track of all the macros internally
-var macros map[int]MacroFunc = nil
-var macrosIdx int = 0
+var macros map[int]MacroFunc
+var macrosIdx int
 var macrosLock sync.Mutex
 
 // Parser is responsible for parsing libucl data.

@@ -204,3 +204,28 @@ func (o *ObjectIter) Next() *Object {
 
 	return &Object{object: obj}
 }
+
+// StringFlag are flags used in the conversion of strings into UCL objects
+type StringFlag int
+
+const (
+	// StringEscape tells the converter to JSON escape the inputed string
+	StringEscape StringFlag = C.UCL_STRING_ESCAPE
+	// StringTrim tells the converter to trim leading and trailing whitespaces
+	StringTrim StringFlag = C.UCL_STRING_TRIM
+	// StringParseBoolean tells the converter to parse the inputted string as a boolean
+	StringParseBoolean StringFlag = C.UCL_STRING_PARSE_BOOLEAN
+	// StringParseInt tells the converter to parse the inputted string as an integer
+	StringParseInt StringFlag = C.UCL_STRING_PARSE_INT
+	// StringParseDouble tells the converter to parse the inputted string as a floating-point number
+	StringParseDouble StringFlag = C.UCL_STRING_PARSE_DOUBLE
+	// StringParseTime tells the converter to parse the inputted string as a time value, and treat as a floating-point number.
+	StringParseTime StringFlag = C.UCL_STRING_PARSE_TIME
+	// StringParseNumber tells the converter to parse the inputted string as a number (integer, floating-point or time)
+	StringParseNumber StringFlag = C.UCL_STRING_PARSE_TIME
+	// StringParse tells the converter to parse the inputted string
+	StringParse StringFlag = C.UCL_STRING_PARSE
+	// StringParseBytes tells the converter to parse the inputted string as being in bytes notation
+	// (e.g. 10k = 10*1024, not 10*1000)
+	StringParseBytes StringFlag = C.UCL_STRING_PARSE_BYTES
+)

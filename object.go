@@ -220,16 +220,16 @@ const (
 	// StringParseDouble tells the converter to parse the inputted string as a
 	// floating-point number
 	StringParseDouble StringFlag = C.UCL_STRING_PARSE_DOUBLE
-	// StringParseTime tells the converter to parse the inputted string as a time value,
-	// and treat as a floating-point number.
+	// StringParseTime tells the converter to parse the inputted string as a
+	// time value, and treat as a floating-point number.
 	StringParseTime StringFlag = C.UCL_STRING_PARSE_TIME
-	// StringParseNumber tells the converter to parse the inputted string as a number
-	// (integer, floating-point or time)
+	// StringParseNumber tells the converter to parse the inputted string as a
+	// number (integer, floating-point or time)
 	StringParseNumber StringFlag = C.UCL_STRING_PARSE_TIME
 	// StringParse tells the converter to parse the inputted string
 	StringParse StringFlag = C.UCL_STRING_PARSE
-	// StringParseBytes tells the converter to parse the inputted string as being in
-	// bytes notation (e.g. 10k = 10*1024, not 10*1000)
+	// StringParseBytes tells the converter to parse the inputted string as being
+	// in bytes notation (e.g. 10k = 10*1024, not 10*1000)
 	StringParseBytes StringFlag = C.UCL_STRING_PARSE_BYTES
 )
 

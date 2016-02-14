@@ -22,7 +22,8 @@ const (
 	ParserZeroCopy ParserFlag = C.UCL_PARSER_ZEROCOPY
 	// ParserNoTime will treat time values as strings.
 	ParserNoTime ParserFlag = C.UCL_PARSER_NO_TIME
-	// ParserNoImplicitArrays forces the creation explicit arrays instead of implicit ones
+	// ParserNoImplicitArrays forces the creation explicit arrays instead of
+	// implicit ones
 	ParserNoImplicitArrays ParserFlag = C.UCL_PARSER_NO_IMPLICIT_ARRAYS
 )
 

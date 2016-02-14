@@ -13,7 +13,8 @@ const (
 	SchemaOK SchemaErrorCode = iota
 	// SchemaTypeMismatch means the type of object is wrong
 	SchemaTypeMismatch
-	// SchemaInvalidSchema means the provided schema is not valid according to json-schema draft 4
+	// SchemaInvalidSchema means the provided schema is not valid according to
+	// json-schema draft 4
 	SchemaInvalidSchema
 	// SchemaMissingProperty means at least one property of the object is missing
 	SchemaMissingProperty

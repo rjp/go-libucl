@@ -217,15 +217,49 @@ const (
 	StringParseBoolean StringFlag = C.UCL_STRING_PARSE_BOOLEAN
 	// StringParseInt tells the converter to parse the inputted string as an integer
 	StringParseInt StringFlag = C.UCL_STRING_PARSE_INT
-	// StringParseDouble tells the converter to parse the inputted string as a floating-point number
+	// StringParseDouble tells the converter to parse the inputted string as a
+	// floating-point number
 	StringParseDouble StringFlag = C.UCL_STRING_PARSE_DOUBLE
-	// StringParseTime tells the converter to parse the inputted string as a time value, and treat as a floating-point number.
+	// StringParseTime tells the converter to parse the inputted string as a time value,
+	// and treat as a floating-point number.
 	StringParseTime StringFlag = C.UCL_STRING_PARSE_TIME
-	// StringParseNumber tells the converter to parse the inputted string as a number (integer, floating-point or time)
+	// StringParseNumber tells the converter to parse the inputted string as a number
+	// (integer, floating-point or time)
 	StringParseNumber StringFlag = C.UCL_STRING_PARSE_TIME
 	// StringParse tells the converter to parse the inputted string
 	StringParse StringFlag = C.UCL_STRING_PARSE
-	// StringParseBytes tells the converter to parse the inputted string as being in bytes notation
-	// (e.g. 10k = 10*1024, not 10*1000)
+	// StringParseBytes tells the converter to parse the inputted string as being in
+	// bytes notation (e.g. 10k = 10*1024, not 10*1000)
 	StringParseBytes StringFlag = C.UCL_STRING_PARSE_BYTES
 )
+
+// NewObject creates a new UCL Object from a string, JSON escaping it in the process
+func NewObject(data string) *Object {
+	obj := C.ucl_object_fromlstring(C.CString(data), C.size_t(len(data)))
+	return &Object{object: obj}
+}
+
+// NewFormattedObject creates a new UCL Object from a string, according to the instructions
+// given in the flags
+func NewFormattedObject(data string, flags StringFlag) *Object {
+	obj := C.ucl_object_fromstring_common(C.CString(data), C.size_t(len(data)), uint32(flags))
+	return &Object{object: obj}
+}
+
+// NewIntegerObject creates a new UCL Object from a 64-bit integer
+func NewIntegerObject(data int64) *Object {
+	obj := C.ucl_object_fromint(C.int64_t(data))
+	return &Object{object: obj}
+}
+
+// NewDoubleObject creates a new UCL Object from a 64-bit floating-point number
+func NewDoubleObject(data float64) *Object {
+	obj := C.ucl_object_fromdouble(C.double(data))
+	return &Object{object: obj}
+}
+
+// NewBoolObject creates a new UCL Object from a boolean
+func NewBoolObject(data bool) *Object {
+	obj := C.ucl_object_frombool(C.bool(data))
+	return &Object{object: obj}
+}

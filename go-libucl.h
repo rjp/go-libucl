@@ -9,6 +9,10 @@ static inline char *_go_uchar_to_char(const unsigned char *c) {
     return (char *)c;
 }
 
+static inline unsigned char *_go_char_to_uchar(const char *c) {
+  return (unsigned char *)c;
+}
+
 //-------------------------------------------------------------------
 // Helpers: Macros
 //-------------------------------------------------------------------

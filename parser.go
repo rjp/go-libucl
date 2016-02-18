@@ -2,6 +2,7 @@ package libucl
 
 import (
 	"errors"
+	"os"
 	"sync"
 	"unsafe"
 )
@@ -161,9 +162,10 @@ func go_macro_call(id C.int, data *C.char, n C.int) C.bool {
 func (p *Parser) SetFileVariables(filepath string, expand bool) error {
 	cpath := C.CString(filepath)
 	defer C.free(unsafe.Pointer(cpath))
-	ok := C.ucl_parser_set_filevars(p.parser, cpath, C.bool(expand))
-	if !ok {
-		return errors.New("Unable to set file variables")
+	result := C.ucl_parser_set_filevars(p.parser, cpath, C.bool(expand))
+	if !result {
+		errstr := C.ucl_parser_get_error(p.parser)
+		return errors.New(C.GoString(errstr))
 	}
 	return nil
 }
@@ -188,4 +190,16 @@ func (p *Parser) AddFileAndSetVariables(path string, expand bool) error {
 
 	err = p.SetFileVariables(path, expand)
 	return err
+}
+
+// AddOpenFile reads in the configuration from a file already opened using os.Open
+// or a related function.
+func (p *Parser) AddOpenFile(f *os.File) error {
+	fd := f.Fd()
+	result := C.ucl_parser_add_fd(p.parser, C.int(fd))
+	if !result {
+		errstr := C.ucl_parser_get_error(p.parser)
+		return errors.New(C.GoString(errstr))
+	}
+	return nil
 }

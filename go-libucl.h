@@ -3,9 +3,14 @@
 
 #include <ucl.h>
 #include <stdlib.h>
+#include <string.h>
 
 static inline char *_go_uchar_to_char(const unsigned char *c) {
     return (char *)c;
+}
+
+static inline unsigned char *_go_char_to_uchar(const char *c) {
+  return (unsigned char *)c;
 }
 
 //-------------------------------------------------------------------
@@ -32,5 +37,7 @@ static inline ucl_macro_handler _go_macro_handler_func() {
 static inline void *_go_macro_index(int idx) {
     return (void *)idx;
 }
+
+typedef struct ucl_schema_error ucl_schema_error_t;
 
 #endif /* _GOLIBUCL_H_INCLUDED */

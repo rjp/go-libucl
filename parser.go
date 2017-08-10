@@ -2,6 +2,7 @@ package libucl
 
 import (
 	"errors"
+	"os"
 	"sync"
 	"unsafe"
 )
@@ -13,21 +14,23 @@ import "C"
 type MacroFunc func(string)
 
 // ParserFlag are flags that can be used to initialize a parser.
-//
-// ParserKeyLowercase will lowercase all keys.
-//
-// ParserKeyZeroCopy will attempt to do a zero-copy parse if possible.
 type ParserFlag int
 
 const (
+	// ParserKeyLowercase will lowercase all keys.
 	ParserKeyLowercase ParserFlag = C.UCL_PARSER_KEY_LOWERCASE
-	ParserZeroCopy                = C.UCL_PARSER_ZEROCOPY
-	ParserNoTime                  = C.UCL_PARSER_NO_TIME
+	// ParserZeroCopy will attempt to do a zero-copy parse if possible.
+	ParserZeroCopy ParserFlag = C.UCL_PARSER_ZEROCOPY
+	// ParserNoTime will treat time values as strings.
+	ParserNoTime ParserFlag = C.UCL_PARSER_NO_TIME
+	// ParserNoImplicitArrays forces the creation explicit arrays instead of
+	// implicit ones
+	ParserNoImplicitArrays ParserFlag = C.UCL_PARSER_NO_IMPLICIT_ARRAYS
 )
 
 // Keeps track of all the macros internally
-var macros map[int]MacroFunc = nil
-var macrosIdx int = 0
+var macros map[int]MacroFunc
+var macrosIdx int
 var macrosLock sync.Mutex
 
 // Parser is responsible for parsing libucl data.
@@ -80,8 +83,8 @@ func (p *Parser) AddFile(path string) error {
 	return nil
 }
 
-// Closes the parser. Once it is closed it can no longer be used. You
-// should always close the parser once you're done with it to clean up
+// Close frees the parser. Once it is freed it can no longer be used. You
+// should always free the parser once you're done with it to clean up
 // any unused memory.
 func (p *Parser) Close() {
 	C.ucl_parser_free(p.parser)
@@ -95,7 +98,7 @@ func (p *Parser) Close() {
 	}
 }
 
-// Retrieves the root-level object for a configuration.
+// Object retrieves the root-level object for a configuration.
 func (p *Parser) Object() *Object {
 	obj := C.ucl_parser_get_object(p.parser)
 	if obj == nil {
@@ -147,4 +150,56 @@ func go_macro_call(id C.int, data *C.char, n C.int) C.bool {
 	// Macro found, call it!
 	f(C.GoStringN(data, n))
 	return true
+}
+
+// SetFileVariables sets the standard file variables ($FILENAME and $CURDIR) based
+// on the provided filepath. If the argument expand is true, the path will be expanded
+// out to an absolute path
+//
+// For example, if the current directory is /etc/nginx, and you give a path of
+// ../file.conf, with exand = false, $FILENAME = ../file.conf and $CURDIR = ..,
+// while with expand = true, $FILENAME = /etc/file.conf and $CURDIR = /etc
+func (p *Parser) SetFileVariables(filepath string, expand bool) error {
+	cpath := C.CString(filepath)
+	defer C.free(unsafe.Pointer(cpath))
+	result := C.ucl_parser_set_filevars(p.parser, cpath, C.bool(expand))
+	if !result {
+		errstr := C.ucl_parser_get_error(p.parser)
+		return errors.New(C.GoString(errstr))
+	}
+	return nil
+}
+
+// RegisterVariable adds a new variable to the parser, which can be accessed in
+// the configuration file as $variable_name
+func (p *Parser) RegisterVariable(variable, value string) {
+	cVariable := C.CString(variable)
+	defer C.free(unsafe.Pointer(cVariable))
+	cValue := C.CString(value)
+	defer C.free(unsafe.Pointer(cValue))
+	C.ucl_parser_register_variable(p.parser, cVariable, cValue)
+}
+
+// AddFileAndSetVariables is a combination of AddFile and SetFileVariables.
+// It is meant to be a simple way to do both actions in a single function call.
+func (p *Parser) AddFileAndSetVariables(path string, expand bool) error {
+	err := p.AddFile(path)
+	if err != nil {
+		return err
+	}
+
+	err = p.SetFileVariables(path, expand)
+	return err
+}
+
+// AddOpenFile reads in the configuration from a file already opened using os.Open
+// or a related function.
+func (p *Parser) AddOpenFile(f *os.File) error {
+	fd := f.Fd()
+	result := C.ucl_parser_add_fd(p.parser, C.int(fd))
+	if !result {
+		errstr := C.ucl_parser_get_error(p.parser)
+		return errors.New(C.GoString(errstr))
+	}
+	return nil
 }

@@ -43,8 +43,6 @@ func decode(name string, o *Object, result reflect.Value) error {
 	default:
 		return fmt.Errorf("%s: unsupported type: %s", name, result.Kind())
 	}
-
-	return nil
 }
 
 func decodeIntoBool(name string, o *Object, result reflect.Value) error {
@@ -347,8 +345,8 @@ func decodeIntoStruct(name string, o *Object, result reflect.Value) error {
 
 	usedKeys := make(map[string]struct{})
 	decodedFields := make([]string, 0, len(fields))
-	decodedFieldsVal := make([]reflect.Value, 0)
-	unusedKeysVal := make([]reflect.Value, 0)
+	var decodedFieldsVal []reflect.Value
+	var unusedKeysVal []reflect.Value
 	for fieldType, field := range fields {
 		if !field.IsValid() {
 			// This should never happen

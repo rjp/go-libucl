@@ -234,3 +234,97 @@ func TestObjectToFloat_negativeOneThird(t *testing.T) {
 		t.Fatalf("bad: %#v, expected: %v", v.ToFloat(), g)
 	}
 }
+
+func TestIntToObject(t *testing.T) {
+	var testValue int64 = 42
+	obj := NewIntegerObject(testValue)
+	defer obj.Close()
+	v := obj.ToInt()
+	if v != testValue {
+		t.Fatalf("bad: %d, expected: %d", v, testValue)
+	}
+}
+
+func TestBoolToObject(t *testing.T) {
+	objTrue := NewBoolObject(true)
+	defer objTrue.Close()
+	if !objTrue.ToBool() {
+		t.Fatalf("bad: false, expected: true")
+	}
+	objFalse := NewBoolObject(false)
+	defer objFalse.Close()
+	if objFalse.ToBool() {
+		t.Fatalf("bad: true, expected: false")
+	}
+}
+
+func TestFloatToObject(t *testing.T) {
+	testValue := -1.0 / 3.0
+	obj := NewDoubleObject(testValue)
+	defer obj.Close()
+	if obj.ToFloat() != testValue {
+		t.Fatalf("bad: %#v, expected: %v", obj.ToFloat(), testValue)
+	}
+}
+
+func TestSimpleStringToObject(t *testing.T) {
+	s := "Hello World!"
+	obj := NewObject(s)
+	defer obj.Close()
+	if obj.ToString() != s {
+		t.Fatalf("bad: \"%s\", expected: \"%s\"", obj.ToString(), s)
+	}
+}
+
+func TestJSONEscapeStringToObject(t *testing.T) {
+	inputString := "complex\tstring\nfrom\"hell\""
+	escapedString := "complex\\tstring\\nfrom\\\"hell\\\""
+	obj := NewObject(inputString)
+	defer obj.Close()
+	if obj.ToString() != escapedString {
+		t.Fatalf("bad: \"%s\", expected: \"%s\"", obj.ToString(), escapedString)
+	}
+}
+
+func TestStringIntToObject(t *testing.T) {
+	var i int64 = 42
+	s := "42"
+	obj := NewFormattedObject(s, StringParseInt)
+	defer obj.Close()
+	if obj.ToInt() != i {
+		t.Fatalf("bad: %d, expected: %d", obj.ToInt(), i)
+	}
+}
+
+func TestStringFloatToObject(t *testing.T) {
+	expectedValue := -1.0 / 3.0
+	testString := "-0.3333333333333333148296162562473909929394721984863281"
+	obj := NewFormattedObject(testString, StringParseDouble)
+	defer obj.Close()
+	if obj.ToFloat() != expectedValue {
+		t.Fatalf("bad: %#v, expected: %v", obj.ToFloat(), expectedValue)
+	}
+}
+
+func TestStringBoolToObject(t *testing.T) {
+	objFalse := NewFormattedObject("false", StringParseBoolean)
+	defer objFalse.Close()
+	if objFalse.ToBool() {
+		t.Fatal("bad: true, expected: false")
+	}
+	objTrue := NewFormattedObject("true", StringParseBoolean)
+	defer objTrue.Close()
+	if !objTrue.ToBool() {
+		t.Fatal("bad: false, expected: true")
+	}
+}
+
+func TestStringTrimToObject(t *testing.T) {
+	rawString := "  Hello World\n\t\n\t\n\t  "
+	expectedResult := "Hello World"
+	obj := NewFormattedObject(rawString, StringTrim)
+	defer obj.Close()
+	if obj.ToString() != expectedResult {
+		t.Fatalf("bad: \"%s\", expected: \"%s\"", obj.ToString(), expectedResult)
+	}
+}

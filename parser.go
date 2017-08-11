@@ -11,7 +11,14 @@ import (
 import "C"
 
 // MacroFunc is the callback type for macros.
-type MacroFunc func(string)
+// return true os string is valid
+// a macro call looks like:
+//
+//   .macro(UCL-OBJECT) "body-text"
+//   .macro(key=value) "body-text"
+//   .macro(params={key1=value1;key2=value2}) "body"
+//
+type MacroFunc func(args Object, body string) bool
 
 // ParserFlag are flags that can be used to initialize a parser.
 type ParserFlag int
@@ -137,10 +144,14 @@ func (p *Parser) RegisterMacro(name string, f MacroFunc) {
 }
 
 //export go_macro_call
-func go_macro_call(id C.int, data *C.char, n C.int) C.bool {
+func go_macro_call(id C.int, arguments *C.ucl_object_t, data *C.char, n C.int) C.bool {
 	macrosLock.Lock()
 	f := macros[int(id)]
 	macrosLock.Unlock()
+
+	args := Object{
+		object: arguments,
+	}
 
 	// Macro not found, return error
 	if f == nil {
@@ -148,7 +159,7 @@ func go_macro_call(id C.int, data *C.char, n C.int) C.bool {
 	}
 
 	// Macro found, call it!
-	f(C.GoStringN(data, n))
+	f(args, C.GoStringN(data, n))
 	return true
 }
 

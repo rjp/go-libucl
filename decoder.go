@@ -134,12 +134,13 @@ func decodeIntoInterface(name string, o *Object, result reflect.Value) error {
 		for o := outer.Next(); o != nil; o = outer.Next() {
 			m := make(map[string]interface{})
 			inner := o.Iterate(true)
+		inner_loop:
 			for o2 := inner.Next(); o2 != nil; o2 = inner.Next() {
 				var raw interface{}
 				err = decode(name, o2, reflect.Indirect(reflect.ValueOf(&raw)))
 				o2.Close()
 				if err != nil {
-					break
+					break inner_loop
 				}
 
 				m[o2.Key()] = raw
@@ -159,7 +160,7 @@ func decodeIntoInterface(name string, o *Object, result reflect.Value) error {
 		set = reflect.Indirect(reflect.New(reflect.TypeOf("")))
 	default:
 		return fmt.Errorf(
-			"%s: unsupported type to interface: %s", name, o.Type())
+			"%s: unsupported type to interface: %v", name, o.Type())
 	}
 
 	if redecode {
@@ -289,7 +290,7 @@ func decodeIntoString(name string, o *Object, result reflect.Value) error {
 	case ObjectTypeInt:
 		result.SetString(strconv.FormatInt(o.ToInt(), 10))
 	default:
-		return fmt.Errorf("%s: unsupported type to string: %s", name, objType)
+		return fmt.Errorf("%s: unsupported type to string: %v", name, objType)
 	}
 
 	return nil
@@ -310,6 +311,7 @@ func decodeIntoStruct(name string, o *Object, result reflect.Value) error {
 		structs = structs[1:]
 
 		structType := structVal.Type()
+	struct_loop:
 		for i := 0; i < structType.NumField(); i++ {
 			fieldType := structType.Field(i)
 
@@ -325,16 +327,17 @@ func decodeIntoStruct(name string, o *Object, result reflect.Value) error {
 				// if specified in the tag.
 				squash := false
 				tagParts := strings.Split(fieldType.Tag.Get(tagName), ",")
+			tag_loop:
 				for _, tag := range tagParts[1:] {
 					if tag == "squash" {
 						squash = true
-						break
+						break tag_loop
 					}
 				}
 
 				if squash {
 					structs = append(structs, result.FieldByName(fieldType.Name))
-					continue
+					continue struct_loop
 				}
 			}
 
@@ -347,6 +350,7 @@ func decodeIntoStruct(name string, o *Object, result reflect.Value) error {
 	decodedFields := make([]string, 0, len(fields))
 	var decodedFieldsVal []reflect.Value
 	var unusedKeysVal []reflect.Value
+field_loop:
 	for fieldType, field := range fields {
 		if !field.IsValid() {
 			// This should never happen
@@ -356,7 +360,7 @@ func decodeIntoStruct(name string, o *Object, result reflect.Value) error {
 		// If we can't set the field, then it is unexported or something,
 		// and we just continue onwards.
 		if !field.CanSet() {
-			continue
+			continue field_loop
 		}
 
 		fieldName := fieldType.Name
@@ -367,20 +371,20 @@ func decodeIntoStruct(name string, o *Object, result reflect.Value) error {
 			switch tagParts[1] {
 			case "decodedFields":
 				decodedFieldsVal = append(decodedFieldsVal, field)
-				continue
+				continue field_loop
 			case "key":
 				field.SetString(o.Key())
-				continue
+				continue field_loop
 			case "object":
 				// Increase the ref count
 				o.Ref()
 
 				// Sete the object
 				field.Set(reflect.ValueOf(o))
-				continue
+				continue field_loop
 			case "unusedKeys":
 				unusedKeysVal = append(unusedKeysVal, field)
-				continue
+				continue field_loop
 			}
 		}
 
@@ -393,9 +397,10 @@ func decodeIntoStruct(name string, o *Object, result reflect.Value) error {
 			// Do a slower search by iterating over each key and
 			// doing case-insensitive search.
 			iter := o.Iterate(true)
+		element_loop:
 			for elem = iter.Next(); elem != nil; elem = iter.Next() {
 				if strings.EqualFold(elem.Key(), fieldName) {
-					break
+					break element_loop
 				}
 
 				elem.Close()
@@ -404,7 +409,7 @@ func decodeIntoStruct(name string, o *Object, result reflect.Value) error {
 
 			if elem == nil {
 				// No key matching this field.
-				continue
+				continue field_loop
 			}
 		}
 
@@ -422,16 +427,17 @@ func decodeIntoStruct(name string, o *Object, result reflect.Value) error {
 			err = decode(fieldName, elem, field)
 		} else {
 			iter := elem.Iterate(false)
+		iteration_loop:
 			for {
 				obj := iter.Next()
 				if obj == nil {
-					break
+					break iteration_loop
 				}
 
 				err = decode(fieldName, obj, field)
 				obj.Close()
 				if err != nil {
-					break
+					break iteration_loop
 				}
 			}
 			iter.Close()

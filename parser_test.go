@@ -98,11 +98,18 @@ func TestParserAddFile(t *testing.T) {
 
 func TestParserRegisterMacro(t *testing.T) {
 	value := ""
-	macro := func(data string) {
-		value = data
+	parameter := ""
+	macro := func(args Object, body string) bool {
+		thing := args.Get("thing")
+		if nil == thing {
+			return false
+		}
+		parameter = thing.ToString()
+		value = body
+		return true
 	}
 
-	config := `.foo "bar";`
+	config := `.foo(thing=something) "bar";`
 
 	p := NewParser(0)
 	defer p.Close()
@@ -114,7 +121,10 @@ func TestParserRegisterMacro(t *testing.T) {
 	}
 
 	if value != "bar" {
-		t.Fatalf("bad: %#v", value)
+		t.Fatalf("body bad: %#v", value)
+	}
+	if parameter != "something" {
+		t.Fatalf("parameter bad: %#v", parameter)
 	}
 }
 

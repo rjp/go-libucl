@@ -1,3 +1,3 @@
-module github.com/bitmark-inc/go-libucl
+module github.com/brcz/go-libucl
 
 go 1.12

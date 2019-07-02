@@ -40,6 +40,8 @@ func decode(name string, o *Object, result reflect.Value) error {
 		return decodeIntoString(name, o, result)
 	case reflect.Struct:
 		return decodeIntoStruct(name, o, result)
+	case reflect.Float64:
+		return decodeIntoFloat64(name, o, result)
 	default:
 		return fmt.Errorf("%s: unsupported type: %s", name, result.Kind())
 	}
@@ -88,6 +90,22 @@ func decodeIntoUint(name string, o *Object, result reflect.Value) error {
 		}
 	default:
 		result.SetUint(o.ToUint())
+	}
+
+	return nil
+}
+
+func decodeIntoFloat64(name string, o *Object, result reflect.Value) error {
+	switch o.Type() {
+	case ObjectTypeFloat:
+		i, err := strconv.ParseFloat(o.ToString(), result.Type().Bits())
+		if err == nil {
+			result.SetFloat(i)
+		} else {
+			return fmt.Errorf("cannot parse '%s' as int: %s", name, err)
+		}
+	default:
+		result.SetFloat(o.ToFloat())
 	}
 
 	return nil

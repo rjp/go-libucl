@@ -194,7 +194,7 @@ func (o *ObjectIter) Close() {
 
 // Next returns the next iterative UCL Object
 func (o *ObjectIter) Next() *Object {
-	obj := C.ucl_iterate_object(o.object, &o.iter, C._Bool(o.expand))
+	obj := C.ucl_object_iterate_with_error(o.object, &o.iter, C._Bool(o.expand), nil)
 	if obj == nil {
 		return nil
 	}
